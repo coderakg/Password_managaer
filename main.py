@@ -33,7 +33,7 @@ def generate_password():
 # ---------------------------- SAVE PASSWORD ------------------------------- #
 
 def save():
-    we = website_entry.get() # to get the enrties in a string data type we use the get function
+    we = website_entry.get() 
     ee = email_entry.get()
     pe = password_entry.get()
     
