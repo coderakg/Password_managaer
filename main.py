@@ -2,7 +2,7 @@ from tkinter import *
 from tkinter import messagebox
 import random
 import pyperclip
-
+import json
 # ---------------------------- CONSTANTS ------------------------------- #
 
 BLACK = "#000000"
@@ -30,24 +30,55 @@ def generate_password():
     
     pyperclip.copy(password)
 
+# ---------------------------- SEARCH ------------------------------- #
+def find_password():
+    print("pressed")
+    website_name = website_entry.get()
+    try:
+        with open("passwords.json","r") as passw_file:
+            passw_data = json.load(passw_file)
+    except FileNotFoundError :
+        messagebox.showinfo(title="Error",message="No data file found")
+    else:            
+        if website_name in passw_data:
+            req_email = passw_data[website_name]["email"]
+            req_passw = passw_data[website_name]["password"]
+            messagebox.showinfo(title=website_name,message=f"Email: {req_email}\nPassword: {req_passw}")   
+        else:     
+            messagebox.showinfo(title="Error",message=f"No data found for {website_name}")      
+
 # ---------------------------- SAVE PASSWORD ------------------------------- #
 
 def save():
-    we = website_entry.get() 
+    we = website_entry.get() # to get the enrties in a string data type we use the get function
     ee = email_entry.get()
     pe = password_entry.get()
+    new_data = {we : {
+        "email" : ee,
+        "password": pe
+    }}
     
     if len(we) == 0 or len(pe) == 0:
         messagebox.showerror(title="Error",message="Please don't leave any empty fields.")        
     else:
         is_ok = messagebox.askokcancel(title=we,message=f"There are the details you entered: \n Email: {ee} \n Password: {pe} \n Click ok to confirm:")
-
-        if is_ok:
-            with open("password.txt",'a') as file :
-                file.write(f"{we} | {ee} | {pe}")
-                file.write("\n")
+        try:
+            if is_ok:
+                with open("passwords.json",'r') as file :
+                    data = json.load(file) # reading the old data
+                    data.update(new_data) # updating the old data with new data
+                
+                with open("passwords.json",'w') as file :
+                    json.dump(data,file,indent=4) #saving the data and updating it in the file
+                website_entry.delete(0,END)
+                password_entry.delete(0,END)    
+        except FileNotFoundError:
+                with open("passwords.json",'w') as file :
+                    json.dump(new_data,file,indent=4) #saving the data and updating it in the file
+        finally:
             website_entry.delete(0,END)
             password_entry.delete(0,END)    
+            
     
 
 # ---------------------------- UI SETUP ------------------------------- #
@@ -64,9 +95,12 @@ canvas.grid(column=1,row=0)
 website_label = Label(text="Website",font=(FONT_UI,20),bg=BLACK,fg=BLUE)
 website_label.grid(column=0,row=1)
 
-website_entry = Entry(width=35,font=(FONT_UI,18))
-website_entry.grid(column=1,row=1,columnspan=2)
+website_entry = Entry(width=20,font=(FONT_UI,18))
+website_entry.grid(column=1,row=1)
 website_entry.focus()
+
+search_btn = Button(text="Search",font=(FONT_UI,14),fg="white",bg=BLACK,width=16,command=find_password)
+search_btn.grid(column=2,row=1)
 
 email_label = Label(text="Email/Username:",font=(FONT_UI,20),bg=BLACK,fg=BLUE)
 email_label.grid(column=0,row=2)
@@ -78,10 +112,10 @@ email_entry.insert(0,"example@gmail.com")
 password_label = Label(text="Password:",font=(FONT_UI,20),bg=BLACK,fg=BLUE)
 password_label.grid(column=0,row=3)
 
-password_entry = Entry(width=21,font=(FONT_UI,18))
+password_entry = Entry(width=20,font=(FONT_UI,18))
 password_entry.grid(column=1,row=3)
 
-gen_password_btn = Button(text="Generate Password",font=(FONT_UI,14),fg="white",bg=BLACK,command=generate_password)
+gen_password_btn = Button(text="Generate Password",font=(FONT_UI,14),fg="white",bg=BLACK,command=generate_password,width=16)
 gen_password_btn.grid(column=2,row=3)
 
 add_btn = Button(text="Add",font=(FONT_UI,12),fg="white",bg=BLACK,width=60,command=save)
