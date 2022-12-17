@@ -50,7 +50,7 @@ def find_password():
 # ---------------------------- SAVE PASSWORD ------------------------------- #
 
 def save():
-    we = website_entry.get() # to get the enrties in a string data type we use the get function
+    we = website_entry.get() 
     ee = email_entry.get()
     pe = password_entry.get()
     new_data = {we : {
@@ -65,16 +65,16 @@ def save():
         try:
             if is_ok:
                 with open("passwords.json",'r') as file :
-                    data = json.load(file) # reading the old data
-                    data.update(new_data) # updating the old data with new data
+                    data = json.load(file) 
+                    data.update(new_data) 
                 
                 with open("passwords.json",'w') as file :
-                    json.dump(data,file,indent=4) #saving the data and updating it in the file
+                    json.dump(data,file,indent=4) 
                 website_entry.delete(0,END)
                 password_entry.delete(0,END)    
         except FileNotFoundError:
                 with open("passwords.json",'w') as file :
-                    json.dump(new_data,file,indent=4) #saving the data and updating it in the file
+                    json.dump(new_data,file,indent=4) 
         finally:
             website_entry.delete(0,END)
             password_entry.delete(0,END)    
